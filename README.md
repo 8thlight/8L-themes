@@ -38,164 +38,181 @@ Screenshots were taken with Cousine Nerd Font Mono. The themes do not set a font
 
 </details>
 
-## Setup
+## Install
 
-Keep the repository in a stable location because the installation commands
-create symlinks back to this checkout.
+Each application installs on its own, so use only the ones you need.
 
-Common requirements:
+| Application | Simplest install | Needs a clone |
+| --- | --- | --- |
+| Kitty | Download one `.conf` file | No |
+| Neovim and Neovide | Add the plugin with lazy.nvim | No |
+| JetBrains IDEs | Build the plugin and install it from disk | Yes |
 
-- macOS or Linux with Bash
-- Any combination of Kitty, Neovim/Neovide, or a JetBrains IDE
+### Kitty
 
-### With Nix
-
-Install [Nix](https://nixos.org/download/) with flakes enabled. The development
-shell supplies `just` and `zip`.
-
-With [direnv](https://direnv.net/) and its Nix integration, clone the repository,
-enter it, and approve the environment once:
+Download the variant you want into Kitty's themes directory:
 
 ```sh
-cd 8L-themes
-direnv allow
-just link
+theme=8th-Light-Charcoal
+mkdir -p ~/.config/kitty/themes
+curl -fsSL -o ~/.config/kitty/themes/$theme.conf \
+  https://raw.githubusercontent.com/8thlight/8L-themes/main/extras/kitty/$theme.conf
 ```
 
-Without direnv, run the installer directly through the development shell:
-
-```sh
-nix develop -c just link
-```
-
-`just link` installs all three integrations and therefore expects all three
-target applications to be present. Otherwise, use `just link-kitty`, `just
-link-nvim`, or `just link-jetbrains` individually. Run `just --list` to see all
-available helper commands.
-
-### Without Nix
-
-No task runner is required. Enter the cloned repository, then install only the
-integrations you use.
-
-For Kitty, link the theme files into its user theme directory:
-
-```sh
-cd 8L-themes
-kitty_themes="${KITTY_CONFIG_DIRECTORY:-${XDG_CONFIG_HOME:-$HOME/.config}/kitty}/themes"
-mkdir -p "$kitty_themes"
-ln -s "$PWD"/themes/kitty/*.conf "$kitty_themes/"
-```
-
-For Neovim and Neovide, link the theme runtime into Neovim's native package
-directory:
-
-```sh
-nvim_packages="${NVIM_DATA_DIRECTORY:-${XDG_DATA_HOME:-$HOME/.local/share}/nvim}/site/pack/8th-light/start"
-mkdir -p "$nvim_packages"
-ln -s "$PWD/themes/nvim" "$nvim_packages/8th-light.nvim"
-```
-
-For JetBrains IDEs, install `zip`, build the plugin JAR, and install it through
-**Settings | Plugins | gear menu | Install Plugin from Disk**:
-
-```sh
-repository="$PWD"
-mkdir -p "$repository/build/jetbrains"
-(
-  cd themes/jetbrains
-  zip -q -FS -r "$repository/build/jetbrains/8th-light-themes.jar" \
-    META-INF images schemes themes
-)
-```
-
-Select `build/jetbrains/8th-light-themes.jar` in the file picker, then restart
-the IDE.
-
-The direct `ln` commands intentionally fail when a destination already exists
-rather than replacing it. Kitty and Neovim updates flow through their symlinks.
-After pulling JetBrains changes, rebuild and reinstall the JAR.
-
-When using the Nix helpers, run `just link` after pulling an update and `just
-unlink` before moving or deleting the checkout. The helpers refuse to replace
-regular files and remove only symlinks managed by this checkout. The remaining
-application sections use these helpers for brevity; the manual commands above
-install the same files.
-
-## Kitty
-
-Kitty theme files live in [`themes/kitty/`](themes/kitty/).
-
-### Install
-
-Symlink every theme into Kitty's themes directory:
-
-```sh
-just link-kitty
-```
-
-Then include the variant you want in `~/.config/kitty/kitty.conf`, for example:
+Then include it in `~/.config/kitty/kitty.conf`:
 
 ```conf
 include themes/8th-Light-Charcoal.conf
 ```
 
-Reload Kitty's configuration with <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F5</kbd>.
+Reload the configuration with <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F5</kbd>
+(<kbd>Cmd</kbd>+<kbd>Ctrl</kbd>+<kbd>,</kbd> on macOS), or restart Kitty. The
+available names are listed under [Variants](#variants).
 
-Running `just link-kitty` again adds new themes and refreshes existing
-theme symlinks. It refuses to overwrite a regular file with the same name.
+### Neovim and Neovide
 
-Remove the symlinks managed by this repository with:
+The repository root is a Neovim plugin. With
+[lazy.nvim](https://lazy.folke.io/), add it to your plugin list:
 
-```sh
-just unlink-kitty
+```lua
+{ "8thlight/8L-themes" }
 ```
 
-This leaves regular files and symlinks pointing elsewhere untouched.
-
-### Variants
-
-Available Kitty variants:
-
-- `8th-Light-Black`
-- `8th-Light-Charcoal`
-- `8th-Light-Dark-Gray`
-- `8th-Light-Mid-Gray`
-- `8th-Light-Light-Gray`
-- `8th-Light-Lighter-Gray`
-- `8th-Light-Lightest-Gray`
-- `8th-Light-White`
-
-## Neovim and Neovide
-
-The Neovim runtime in [`themes/nvim/`](themes/nvim/) provides the same eight
-neutral-background variants as Kitty. Install it with:
-
-```sh
-just link-nvim
-```
-
-This links the runtime package into Neovim's standard user data directory. Set
-the theme in `init.lua`, for example:
+Then set the theme in `init.lua`:
 
 ```lua
 vim.cmd.colorscheme("8th-Light-Charcoal")
 ```
 
+lazy.nvim loads the plugin when `:colorscheme` first needs it. Without a plugin
+manager, [install from a clone](#install-from-a-clone) and run `just link-nvim`,
+then set the theme in `init.lua` as above.
+
+### JetBrains IDEs
+
+The theme plugin is built from this repository. [Clone it](#install-from-a-clone),
+then build and install the plugin:
+
+```sh
+nix develop -c just link-jetbrains
+```
+
+Without Nix, build the JAR by hand and install it through **Settings | Plugins |
+gear menu | Install Plugin from Disk**. This needs `zip`:
+
+```sh
+repository="$PWD"
+mkdir -p "$repository/build/jetbrains"
+(
+  cd extras/jetbrains
+  zip -q -FS -r "$repository/build/jetbrains/8th-light-themes.jar" \
+    META-INF images schemes themes
+)
+```
+
+Select `build/jetbrains/8th-light-themes.jar` in the file picker. Either way,
+restart the IDE, then select a complete theme under **Settings | Appearance &
+Behavior | Appearance**. Each UI theme selects its matching editor scheme; the
+schemes can also be chosen independently under **Settings | Editor | Color
+Scheme**.
+
+### Install from a clone
+
+Clone the repository and keep it in a stable location. The helper commands
+create symlinks back to the checkout.
+
+```sh
+git clone https://github.com/8thlight/8L-themes.git
+cd 8L-themes
+```
+
+The helpers need macOS or Linux with Bash and [`just`](https://just.systems/).
+With [Nix](https://nixos.org/download/) and flakes enabled, the development
+shell supplies `just`, `zip`, and the tools `just check` uses. With
+[direnv](https://direnv.net/) and its Nix integration, approve the environment
+once; otherwise prefix each command with `nix develop -c`:
+
+```sh
+direnv allow
+just link
+```
+
+`just link` installs all three integrations and therefore expects all three
+applications to be present. Otherwise, use `just link-kitty`, `just
+link-nvim`, or `just link-jetbrains` individually. Run `just --list` to see all
+available helper commands. The helpers refuse to replace regular files.
+
+Without `just`, link the files by hand. For Kitty:
+
+```sh
+kitty_themes="${KITTY_CONFIG_DIRECTORY:-${XDG_CONFIG_HOME:-$HOME/.config}/kitty}/themes"
+mkdir -p "$kitty_themes"
+ln -s "$PWD"/extras/kitty/*.conf "$kitty_themes/"
+```
+
+For Neovim and Neovide:
+
+```sh
+nvim_packages="${NVIM_DATA_DIRECTORY:-${XDG_DATA_HOME:-$HOME/.local/share}/nvim}/site/pack/8th-light/start"
+mkdir -p "$nvim_packages"
+ln -s "$PWD" "$nvim_packages/8th-light.nvim"
+```
+
+The direct `ln` commands intentionally fail when a destination already exists
+rather than replacing it.
+
+By default, the JetBrains installer detects IDE configuration directories under
+`~/Library/Application Support/JetBrains` on macOS and either
+`$XDG_CONFIG_HOME/JetBrains` or `~/.config/JetBrains` on Linux. Set
+`JETBRAINS_CONFIG_DIRECTORY` to install into one specific configuration
+directory instead. The other helpers honor `KITTY_CONFIG_DIRECTORY`,
+`NVIM_DATA_DIRECTORY`, `XDG_CONFIG_HOME`, and `XDG_DATA_HOME` where applicable.
+
+### Update and uninstall
+
+| Installed by | Update | Uninstall |
+| --- | --- | --- |
+| Kitty download | Download the file again | Delete the file and the `include` line |
+| lazy.nvim | `:Lazy update` | Remove the plugin spec |
+| Clone and helpers | `git pull`, then `just link` | `just unlink` |
+
+Kitty and Neovim installs from a clone update through their symlinks, so
+`git pull` is enough for them. JetBrains needs `just link-jetbrains` again to
+rebuild the plugin, and the IDE needs a restart. Run `just unlink` before
+moving or deleting the checkout. It removes only symlinks that point into this
+checkout.
+
+## Variants
+
+Eight neutral-background variants are available in every application:
+
+| Variant | Kitty and Neovim name | JetBrains name |
+| --- | --- | --- |
+| Black | `8th-Light-Black` | 8th Light Black |
+| Charcoal | `8th-Light-Charcoal` | 8th Light Charcoal |
+| Dark Gray | `8th-Light-Dark-Gray` | 8th Light Dark Gray |
+| Mid Gray | `8th-Light-Mid-Gray` | 8th Light Mid Gray |
+| Light Gray | `8th-Light-Light-Gray` | 8th Light Light Gray |
+| Lighter Gray | `8th-Light-Lighter-Gray` | 8th Light Lighter Gray |
+| Lightest Gray | `8th-Light-Lightest-Gray` | 8th Light Lightest Gray |
+| White | `8th-Light-White` | 8th Light White |
+
+## Notes
+
+### Neovim colorscheme
+
 The colorscheme sets Neovim UI, syntax, Tree-sitter, diagnostics, diffs, Git
 signs, embedded terminal colors, and Neovide's background and cursor-effect
-colors. Run `just link` or `just unlink` to manage every application collection
-at once.
+colors.
 
-## JetBrains IDEs
+### JetBrains plugin
 
-The resource-only plugin in [`themes/jetbrains/`](themes/jetbrains/) provides
-complete UI themes and matching editor schemes for the same eight variants in
-RustRover, IntelliJ IDEA, WebStorm, PyCharm, and other JetBrains IDEs. The UI
-themes cover application controls, tabs, tool windows, menus, and branded
-background artwork. The editor schemes cover shared editor colors,
-language-default syntax, console and diff output, diagnostics, and Rust
-semantic highlighting.
+The resource-only plugin in [`extras/jetbrains/`](extras/jetbrains/) provides
+complete UI themes and matching editor schemes in RustRover, IntelliJ IDEA,
+WebStorm, PyCharm, and other JetBrains IDEs. The UI themes cover application
+controls, tabs, tool windows, menus, and branded background artwork. The editor
+schemes cover shared editor colors, language-default syntax, console and diff
+output, diagnostics, and Rust semantic highlighting.
 
 The plugin targets JetBrains Platform 2025.1 (`since-build 251`) and newer.
 
@@ -206,29 +223,6 @@ The empty editor uses a fixed-size, bottom-centered 8th Light lockup on a
 transparent canvas. It is naturally clipped in narrow panes and revealed in
 wide panes without painting behind ordinary editors, tool windows, or IDE
 chrome. Dark and light themes use white and charcoal lockups respectively.
-
-Install them into every detected JetBrains configuration with:
-
-```sh
-just link-jetbrains
-```
-
-This builds a plugin JAR and links it into each detected IDE configuration.
-Restart the IDE, then select a complete theme under **Settings | Appearance &
-Behavior | Appearance**. Each UI theme selects its matching editor scheme; the
-schemes can also be chosen independently under **Settings | Editor | Color
-Scheme**.
-
-Set `JETBRAINS_CONFIG_DIRECTORY` to install into one specific configuration
-directory instead of every detected IDE. `just unlink-jetbrains` removes only
-the plugin symlinks managed by this repository. Restart affected IDEs after
-linking or unlinking.
-
-By default, the installer detects IDE configuration directories under
-`~/Library/Application Support/JetBrains` on macOS and either
-`$XDG_CONFIG_HOME/JetBrains` or `~/.config/JetBrains` on Linux. The other
-installers honor `KITTY_CONFIG_DIRECTORY`, `NVIM_DATA_DIRECTORY`,
-`XDG_CONFIG_HOME`, and `XDG_DATA_HOME` where applicable.
 
 ## Palette
 
@@ -258,6 +252,13 @@ bright magenta. The website's blue-255 is used for bright blue.
 | Website violet | `#5938FF` | `89, 56, 255` |
 | Website blue-255 | `#0000FF` | `0, 0, 255` |
 
+## Layout
+
+- [`colors/`](colors/) and [`lua/`](lua/): the Neovim plugin.
+- [`extras/kitty/`](extras/kitty/): Kitty themes.
+- [`extras/jetbrains/`](extras/jetbrains/): the JetBrains theme plugin.
+- [`docs/`](docs/) and [`screenshots/`](screenshots/): the palette image and
+  the screenshots shown above.
 
 ## Development
 
@@ -265,7 +266,10 @@ bright magenta. The website's blue-255 is used for bright blue.
 nix develop -c just check
 ```
 
-The check validates XML, JSON, and Lua syntax, confirms every variant exists in each application and in the screenshots, verifies the JetBrains theme references, compares Kitty keys across variants, and matches the README palette against the Neovim palette.
+The check validates XML, JSON, and Lua syntax, confirms every variant exists in
+each application and in the screenshots, verifies the JetBrains theme
+references, compares Kitty keys across variants, and matches the README palette
+against the Neovim palette.
 
 ## License
 

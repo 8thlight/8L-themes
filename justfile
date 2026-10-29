@@ -12,7 +12,7 @@ link-kitty:
     target_dir="${KITTY_CONFIG_DIRECTORY:-${XDG_CONFIG_HOME:-$HOME/.config}/kitty}/themes"
     mkdir -p "$target_dir"
 
-    for theme in themes/kitty/*.conf; do
+    for theme in extras/kitty/*.conf; do
       target="$target_dir/$(basename "$theme")"
 
       if [[ -e "$target" && ! -L "$target" ]]; then
@@ -29,7 +29,7 @@ link-nvim:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    source="$PWD/themes/nvim"
+    source="$PWD"
     target_dir="${NVIM_DATA_DIRECTORY:-${XDG_DATA_HOME:-$HOME/.local/share}/nvim}/site/pack/8th-light/start"
     target="$target_dir/8th-light.nvim"
     mkdir -p "$target_dir"
@@ -56,7 +56,7 @@ _build-jetbrains:
     trap 'rm -f "$temporary_jar"' EXIT
 
     (
-      cd themes/jetbrains
+      cd extras/jetbrains
       zip -q -r "$temporary_jar" META-INF images schemes themes
     )
 
@@ -121,7 +121,7 @@ unlink-kitty:
       [[ -L "$target" ]] || continue
 
       source="$(readlink "$target")"
-      if [[ "$source" == "$PWD/themes/"* ]]; then
+      if [[ "$source" == "$PWD/extras/kitty/"* ]]; then
         rm "$target"
         echo "Removed $target"
       fi
@@ -132,7 +132,7 @@ unlink-nvim:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    source="$PWD/themes/nvim"
+    source="$PWD"
     target="${NVIM_DATA_DIRECTORY:-${XDG_DATA_HOME:-$HOME/.local/share}/nvim}/site/pack/8th-light/start/8th-light.nvim"
 
     if [[ -L "$target" && "$(readlink "$target")" == "$source" ]]; then
@@ -191,53 +191,53 @@ check:
     variants=(Black Charcoal Dark-Gray Mid-Gray Light-Gray Lighter-Gray Lightest-Gray White)
 
     echo "Checking XML syntax"
-    xmllint --noout themes/jetbrains/META-INF/plugin.xml themes/jetbrains/schemes/*.xml docs/*.svg || fail "XML is not well-formed"
+    xmllint --noout extras/jetbrains/META-INF/plugin.xml extras/jetbrains/schemes/*.xml docs/*.svg || fail "XML is not well-formed"
 
     echo "Checking JSON syntax"
-    for file in themes/jetbrains/themes/*.json; do
+    for file in extras/jetbrains/themes/*.json; do
       jq empty "$file" || fail "$file is not valid JSON"
     done
 
     echo "Checking Lua syntax"
-    luac -p themes/nvim/colors/*.lua themes/nvim/lua/eighth_light/init.lua || fail "Lua does not parse"
+    luac -p colors/*.lua lua/eighth_light/init.lua || fail "Lua does not parse"
 
     echo "Checking variant coverage"
     for variant in "${variants[@]}"; do
       lower="$(tr '[:upper:]' '[:lower:]' <<<"$variant")"
       for file in \
-        "themes/kitty/8th-Light-$variant.conf" \
-        "themes/nvim/colors/8th-Light-$variant.lua" \
-        "themes/jetbrains/schemes/8th-Light-$variant.xml" \
-        "themes/jetbrains/themes/8th-Light-$variant.theme.json" \
+        "extras/kitty/8th-Light-$variant.conf" \
+        "colors/8th-Light-$variant.lua" \
+        "extras/jetbrains/schemes/8th-Light-$variant.xml" \
+        "extras/jetbrains/themes/8th-Light-$variant.theme.json" \
         "screenshots/kitty/8th-light-$lower.png" \
         "screenshots/nvim/8th-light-$lower.png" \
         "screenshots/jetbrains/8th-light-$lower.png"; do
         [[ -f "$file" ]] || fail "missing $file"
       done
-      grep -q "schemes/8th-Light-$variant\"" themes/jetbrains/META-INF/plugin.xml || fail "plugin.xml does not register scheme $variant"
-      grep -q "themes/8th-Light-$variant.theme.json\"" themes/jetbrains/META-INF/plugin.xml || fail "plugin.xml does not register theme $variant"
+      grep -q "schemes/8th-Light-$variant\"" extras/jetbrains/META-INF/plugin.xml || fail "plugin.xml does not register scheme $variant"
+      grep -q "themes/8th-Light-$variant.theme.json\"" extras/jetbrains/META-INF/plugin.xml || fail "plugin.xml does not register theme $variant"
     done
 
     echo "Checking JetBrains references"
-    for file in themes/jetbrains/themes/*.json; do
+    for file in extras/jetbrains/themes/*.json; do
       scheme="$(jq -r '.editorScheme' "$file")"
-      [[ -f "themes/jetbrains$scheme" ]] || fail "$file points at missing scheme $scheme"
+      [[ -f "extras/jetbrains$scheme" ]] || fail "$file points at missing scheme $scheme"
       image="$(jq -r '.emptyFrameBackground.image // empty' "$file")"
-      [[ -z "$image" || -f "themes/jetbrains/$image" ]] || fail "$file points at missing image $image"
+      [[ -z "$image" || -f "extras/jetbrains/$image" ]] || fail "$file points at missing image $image"
     done
 
     echo "Checking Kitty keys match across variants"
     kitty_keys() {
       grep -vE '^[[:space:]]*(#|$)' "$1" | awk '{print $1}' | sort
     }
-    reference="$(kitty_keys themes/kitty/8th-Light-Black.conf)"
-    for file in themes/kitty/*.conf; do
+    reference="$(kitty_keys extras/kitty/8th-Light-Black.conf)"
+    for file in extras/kitty/*.conf; do
       [[ "$(kitty_keys "$file")" == "$reference" ]] || fail "$file defines different keys than 8th-Light-Black.conf"
     done
 
     echo "Checking README palette against the Neovim palette"
     readme_hexes="$(grep -oE '^\| .* \| `#[0-9A-Fa-f]{6}` \|' README.md | grep -oE '#[0-9A-Fa-f]{6}' | tr '[:lower:]' '[:upper:]' | sort -u)"
-    lua_hexes="$(sed -n '/^local palette = {/,/^}/p' themes/nvim/lua/eighth_light/init.lua | grep -oE '#[0-9A-Fa-f]{6}' | tr '[:lower:]' '[:upper:]' | sort -u)"
+    lua_hexes="$(sed -n '/^local palette = {/,/^}/p' lua/eighth_light/init.lua | grep -oE '#[0-9A-Fa-f]{6}' | tr '[:lower:]' '[:upper:]' | sort -u)"
     [[ "$readme_hexes" == "$lua_hexes" ]] || fail "README palette and Neovim palette differ: $(diff <(echo "$readme_hexes") <(echo "$lua_hexes") | tr '\n' ' ')"
 
     if (( failures > 0 )); then
