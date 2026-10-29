@@ -98,6 +98,8 @@ Appearance & Behavior | Appearance**. Each UI theme selects its matching editor
 scheme; the schemes can also be chosen independently under **Settings | Editor |
 Color Scheme**.
 
+<img src="docs/jetbrains-install-from-disk.png" alt="The Plugins settings page with the gear menu open and Install Plugin from Disk highlighted" width="500">
+
 To build the plugin from a [clone](#install-from-a-clone) instead, run:
 
 ```sh
@@ -262,8 +264,8 @@ bright magenta. The website's blue-255 is used for bright blue.
 - [`colors/`](colors/) and [`lua/`](lua/): the Neovim plugin.
 - [`extras/kitty/`](extras/kitty/): Kitty themes.
 - [`extras/jetbrains/`](extras/jetbrains/): the JetBrains theme plugin.
-- [`docs/`](docs/) and [`screenshots/`](screenshots/): the palette image and
-  the screenshots shown above.
+- [`docs/`](docs/) and [`screenshots/`](screenshots/): the palette, logo, and
+  install images, and the theme screenshots shown above.
 
 ## Development
 
