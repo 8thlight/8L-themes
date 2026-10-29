@@ -42,21 +42,34 @@ link-nvim:
     ln -sfn "$source" "$target"
     echo "Linked $target -> $source"
 
-# Build the resource-only JetBrains theme plugin.
+# Build the resource-only JetBrains theme plugin. Set PLUGIN_VERSION to stamp a version and name the JAR after it.
 _build-jetbrains:
     #!/usr/bin/env bash
     set -euo pipefail
 
+    version="${PLUGIN_VERSION:-}"
+    if [[ -n "$version" && ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+      echo "PLUGIN_VERSION must look like 1.2.3, got: $version" >&2
+      exit 1
+    fi
+
     output_dir="$PWD/build/jetbrains"
-    jar_path="$output_dir/8th-light-themes.jar"
-    temporary_jar="$output_dir/8th-light-themes.jar.tmp"
+    jar_path="$output_dir/8th-light-themes${version:+-$version}.jar"
+    temporary_jar="$jar_path.tmp"
+    stage="$(mktemp -d)"
 
     mkdir -p "$output_dir"
     rm -f "$temporary_jar"
-    trap 'rm -f "$temporary_jar"' EXIT
+    trap 'rm -f "$temporary_jar"; rm -rf "$stage"' EXIT
+
+    cp -R extras/jetbrains/. "$stage"
+    if [[ -n "$version" ]]; then
+      awk -v version="$version" '{ print } /<name>/ { print "  <version>" version "</version>" }' \
+        extras/jetbrains/META-INF/plugin.xml > "$stage/META-INF/plugin.xml"
+    fi
 
     (
-      cd extras/jetbrains
+      cd "$stage"
       zip -q -r "$temporary_jar" META-INF images schemes themes
     )
 

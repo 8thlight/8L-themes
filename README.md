@@ -271,6 +271,12 @@ each application and in the screenshots, verifies the JetBrains theme
 references, compares Kitty keys across variants, and matches the README palette
 against the Neovim palette.
 
+### Releasing
+
+Tag a commit on `main` with a version such as `v0.1.0` and push the tag. The
+release workflow runs the checks, builds the JetBrains plugin JAR with that
+version, and attaches it to a GitHub release.
+
 ## License
 
 Copyright © 2026 8th Light, LLC. Licensed under the MIT License. See [LICENSE](LICENSE).
