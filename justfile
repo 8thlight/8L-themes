@@ -204,7 +204,7 @@ check:
     variants=(Black Charcoal Dark-Gray Mid-Gray Light-Gray Lighter-Gray Lightest-Gray White)
 
     echo "Checking XML syntax"
-    xmllint --noout extras/jetbrains/META-INF/plugin.xml extras/jetbrains/schemes/*.xml docs/*.svg || fail "XML is not well-formed"
+    xmllint --noout extras/jetbrains/META-INF/plugin.xml extras/jetbrains/META-INF/pluginIcon.svg extras/jetbrains/schemes/*.xml docs/*.svg || fail "XML is not well-formed"
 
     echo "Checking JSON syntax"
     for file in extras/jetbrains/themes/*.json; do
@@ -238,6 +238,9 @@ check:
       image="$(jq -r '.emptyFrameBackground.image // empty' "$file")"
       [[ -z "$image" || -f "extras/jetbrains/$image" ]] || fail "$file points at missing image $image"
     done
+
+    echo "Checking the JetBrains plugin icon"
+    grep -q '<svg[^>]*width="40"[^>]*height="40"' extras/jetbrains/META-INF/pluginIcon.svg || fail "pluginIcon.svg must be 40x40"
 
     echo "Checking Kitty keys match across variants"
     kitty_keys() {
