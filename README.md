@@ -46,7 +46,7 @@ Each application installs on its own, so use only the ones you need.
 | --- | --- | --- |
 | Kitty | Download one `.conf` file | No |
 | Neovim and Neovide | Add the plugin with lazy.nvim | No |
-| JetBrains IDEs | Download the plugin from the latest release | No |
+| JetBrains IDEs | Download the plugin from the [latest release](https://github.com/8thlight/8L-themes/releases/latest) | No |
 
 ### Kitty
 
