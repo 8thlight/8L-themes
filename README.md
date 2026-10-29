@@ -46,7 +46,7 @@ Each application installs on its own, so use only the ones you need.
 | --- | --- | --- |
 | Kitty | Download one `.conf` file | No |
 | Neovim and Neovide | Add the plugin with lazy.nvim | No |
-| JetBrains IDEs | Build the plugin and install it from disk | Yes |
+| JetBrains IDEs | Download the plugin from the latest release | No |
 
 ### Kitty
 
@@ -90,15 +90,22 @@ then set the theme in `init.lua` as above.
 
 ### JetBrains IDEs
 
-The theme plugin is built from this repository. [Clone it](#install-from-a-clone),
-then build and install the plugin:
+Download `8th-light-themes-<version>.jar` from the
+[latest release](https://github.com/8thlight/8L-themes/releases/latest). In the
+IDE, open **Settings | Plugins | gear menu | Install Plugin from Disk**, select
+the JAR, and restart the IDE. Then select a complete theme under **Settings |
+Appearance & Behavior | Appearance**. Each UI theme selects its matching editor
+scheme; the schemes can also be chosen independently under **Settings | Editor |
+Color Scheme**.
+
+To build the plugin from a [clone](#install-from-a-clone) instead, run:
 
 ```sh
 nix develop -c just link-jetbrains
 ```
 
-Without Nix, build the JAR by hand and install it through **Settings | Plugins |
-gear menu | Install Plugin from Disk**. This needs `zip`:
+This links the build into every detected IDE. Without Nix, build the JAR by hand
+and install it through **Install Plugin from Disk**. This needs `zip`:
 
 ```sh
 repository="$PWD"
@@ -110,11 +117,8 @@ mkdir -p "$repository/build/jetbrains"
 )
 ```
 
-Select `build/jetbrains/8th-light-themes.jar` in the file picker. Either way,
-restart the IDE, then select a complete theme under **Settings | Appearance &
-Behavior | Appearance**. Each UI theme selects its matching editor scheme; the
-schemes can also be chosen independently under **Settings | Editor | Color
-Scheme**.
+Select `build/jetbrains/8th-light-themes.jar` in the file picker, then restart
+the IDE and select a theme as above.
 
 ### Install from a clone
 
@@ -174,6 +178,7 @@ directory instead. The other helpers honor `KITTY_CONFIG_DIRECTORY`,
 | --- | --- | --- |
 | Kitty download | Download the file again | Delete the file and the `include` line |
 | lazy.nvim | `:Lazy update` | Remove the plugin spec |
+| JetBrains release | Install the newer JAR over the old one | Uninstall it under **Settings \| Plugins** |
 | Clone and helpers | `git pull`, then `just link` | `just unlink` |
 
 Kitty and Neovim installs from a clone update through their symlinks, so
