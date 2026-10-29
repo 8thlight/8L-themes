@@ -1,0 +1,29 @@
+<idea-plugin>
+  <id>com.8thlight.themes</id>
+  <name>8th Light Themes</name>
+  <vendor>8th Light</vendor>
+  <description><![CDATA[
+    Eight UI themes and editor color schemes based on the 8th Light brand palette.
+  ]]></description>
+  <idea-version since-build="251" />
+  <depends>com.intellij.modules.platform</depends>
+  <extensions defaultExtensionNs="com.intellij">
+    <themeProvider id="8a1f1e17-2026-4000-8000-000000000001" path="/themes/8th-Light-Black.theme.json" />
+    <themeProvider id="8a1f1e17-2026-4000-8000-000000000002" path="/themes/8th-Light-Charcoal.theme.json" />
+    <themeProvider id="8a1f1e17-2026-4000-8000-000000000003" path="/themes/8th-Light-Dark-Gray.theme.json" />
+    <themeProvider id="8a1f1e17-2026-4000-8000-000000000004" path="/themes/8th-Light-Mid-Gray.theme.json" />
+    <themeProvider id="8a1f1e17-2026-4000-8000-000000000005" path="/themes/8th-Light-Light-Gray.theme.json" />
+    <themeProvider id="8a1f1e17-2026-4000-8000-000000000006" path="/themes/8th-Light-Lighter-Gray.theme.json" />
+    <themeProvider id="8a1f1e17-2026-4000-8000-000000000007" path="/themes/8th-Light-Lightest-Gray.theme.json" />
+    <themeProvider id="8a1f1e17-2026-4000-8000-000000000008" path="/themes/8th-Light-White.theme.json" />
+
+    <bundledColorScheme path="schemes/8th-Light-Black" id="8th Light Black" />
+    <bundledColorScheme path="schemes/8th-Light-Charcoal" id="8th Light Charcoal" />
+    <bundledColorScheme path="schemes/8th-Light-Dark-Gray" id="8th Light Dark Gray" />
+    <bundledColorScheme path="schemes/8th-Light-Mid-Gray" id="8th Light Mid Gray" />
+    <bundledColorScheme path="schemes/8th-Light-Light-Gray" id="8th Light Light Gray" />
+    <bundledColorScheme path="schemes/8th-Light-Lighter-Gray" id="8th Light Lighter Gray" />
+    <bundledColorScheme path="schemes/8th-Light-Lightest-Gray" id="8th Light Lightest Gray" />
+    <bundledColorScheme path="schemes/8th-Light-White" id="8th Light White" />
+  </extensions>
+</idea-plugin>

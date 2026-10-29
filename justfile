@@ -1,0 +1,247 @@
+default:
+    @just --list
+
+# Symlink all available application themes.
+link: link-kitty link-nvim link-jetbrains
+
+# Symlink every Kitty theme into Kitty's user themes directory.
+link-kitty:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    target_dir="${KITTY_CONFIG_DIRECTORY:-${XDG_CONFIG_HOME:-$HOME/.config}/kitty}/themes"
+    mkdir -p "$target_dir"
+
+    for theme in themes/kitty/*.conf; do
+      target="$target_dir/$(basename "$theme")"
+
+      if [[ -e "$target" && ! -L "$target" ]]; then
+        echo "Refusing to replace non-symlink: $target" >&2
+        exit 1
+      fi
+
+      ln -sfn "$PWD/$theme" "$target"
+      echo "Linked $target -> $PWD/$theme"
+    done
+
+# Install the Neovim themes as a native runtime package.
+link-nvim:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    source="$PWD/themes/nvim"
+    target_dir="${NVIM_DATA_DIRECTORY:-${XDG_DATA_HOME:-$HOME/.local/share}/nvim}/site/pack/8th-light/start"
+    target="$target_dir/8th-light.nvim"
+    mkdir -p "$target_dir"
+
+    if [[ -e "$target" && ! -L "$target" ]]; then
+      echo "Refusing to replace non-symlink: $target" >&2
+      exit 1
+    fi
+
+    ln -sfn "$source" "$target"
+    echo "Linked $target -> $source"
+
+# Build the resource-only JetBrains theme plugin.
+_build-jetbrains:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    output_dir="$PWD/build/jetbrains"
+    jar_path="$output_dir/8th-light-themes.jar"
+    temporary_jar="$output_dir/8th-light-themes.jar.tmp"
+
+    mkdir -p "$output_dir"
+    rm -f "$temporary_jar"
+    trap 'rm -f "$temporary_jar"' EXIT
+
+    (
+      cd themes/jetbrains
+      zip -q -r "$temporary_jar" META-INF images schemes themes
+    )
+
+    mv "$temporary_jar" "$jar_path"
+    echo "Built $jar_path"
+
+# Build and install the theme plugin into all detected JetBrains configurations.
+link-jetbrains: _build-jetbrains
+    #!/usr/bin/env bash
+    set -euo pipefail
+    shopt -s nullglob
+
+    source="$PWD/build/jetbrains/8th-light-themes.jar"
+    configs=()
+    if [[ -n "${JETBRAINS_CONFIG_DIRECTORY:-}" ]]; then
+      configs+=("$JETBRAINS_CONFIG_DIRECTORY")
+    else
+      roots=(
+        "$HOME/Library/Application Support/JetBrains"
+        "${XDG_CONFIG_HOME:-$HOME/.config}/JetBrains"
+      )
+
+      for root in "${roots[@]}"; do
+        [[ -d "$root" ]] || continue
+        for config in "$root"/*; do
+          [[ -d "$config/options" ]] || continue
+          configs+=("$config")
+        done
+      done
+    fi
+
+    if (( ${#configs[@]} == 0 )); then
+      echo "No JetBrains IDE configuration directories found." >&2
+      exit 1
+    fi
+
+    for config in "${configs[@]}"; do
+      target_dir="$config/plugins/8th-light-themes/lib"
+      target="$target_dir/8th-light-themes.jar"
+      mkdir -p "$target_dir"
+
+      if [[ -e "$target" && ! -L "$target" ]]; then
+        echo "Refusing to replace non-symlink: $target" >&2
+        exit 1
+      fi
+
+      ln -sfn "$source" "$target"
+      echo "Linked $target -> $source"
+    done
+
+# Remove all of this repository's application theme symlinks.
+unlink: unlink-kitty unlink-nvim unlink-jetbrains
+
+# Remove this repository's theme symlinks from Kitty's user themes directory.
+unlink-kitty:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    target_dir="${KITTY_CONFIG_DIRECTORY:-${XDG_CONFIG_HOME:-$HOME/.config}/kitty}/themes"
+
+    for target in "$target_dir"/*.conf; do
+      [[ -L "$target" ]] || continue
+
+      source="$(readlink "$target")"
+      if [[ "$source" == "$PWD/themes/"* ]]; then
+        rm "$target"
+        echo "Removed $target"
+      fi
+    done
+
+# Remove this repository's Neovim runtime package symlink.
+unlink-nvim:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    source="$PWD/themes/nvim"
+    target="${NVIM_DATA_DIRECTORY:-${XDG_DATA_HOME:-$HOME/.local/share}/nvim}/site/pack/8th-light/start/8th-light.nvim"
+
+    if [[ -L "$target" && "$(readlink "$target")" == "$source" ]]; then
+      rm "$target"
+      echo "Removed $target"
+    fi
+
+# Remove this repository's theme plugin from all detected JetBrains configurations.
+unlink-jetbrains:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    shopt -s nullglob
+
+    configs=()
+    if [[ -n "${JETBRAINS_CONFIG_DIRECTORY:-}" ]]; then
+      configs+=("$JETBRAINS_CONFIG_DIRECTORY")
+    else
+      roots=(
+        "$HOME/Library/Application Support/JetBrains"
+        "${XDG_CONFIG_HOME:-$HOME/.config}/JetBrains"
+      )
+
+      for root in "${roots[@]}"; do
+        [[ -d "$root" ]] || continue
+        for config in "$root"/*; do
+          [[ -d "$config/options" ]] || continue
+          configs+=("$config")
+        done
+      done
+    fi
+
+    for config in "${configs[@]}"; do
+      source="$PWD/build/jetbrains/8th-light-themes.jar"
+      plugin_dir="$config/plugins/8th-light-themes"
+      target="$plugin_dir/lib/8th-light-themes.jar"
+
+      if [[ -L "$target" && "$(readlink "$target")" == "$source" ]]; then
+        rm "$target"
+        rmdir "$plugin_dir/lib" "$plugin_dir" 2>/dev/null || true
+        echo "Removed $target"
+      fi
+    done
+
+# Validate theme files: syntax, variant coverage, references, and palette values.
+check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    shopt -s nullglob
+
+    failures=0
+    fail() {
+      echo "FAIL: $*" >&2
+      failures=$((failures + 1))
+    }
+
+    variants=(Black Charcoal Dark-Gray Mid-Gray Light-Gray Lighter-Gray Lightest-Gray White)
+
+    echo "Checking XML syntax"
+    xmllint --noout themes/jetbrains/META-INF/plugin.xml themes/jetbrains/schemes/*.xml docs/*.svg || fail "XML is not well-formed"
+
+    echo "Checking JSON syntax"
+    for file in themes/jetbrains/themes/*.json; do
+      jq empty "$file" || fail "$file is not valid JSON"
+    done
+
+    echo "Checking Lua syntax"
+    luac -p themes/nvim/colors/*.lua themes/nvim/lua/eighth_light/init.lua || fail "Lua does not parse"
+
+    echo "Checking variant coverage"
+    for variant in "${variants[@]}"; do
+      lower="$(tr '[:upper:]' '[:lower:]' <<<"$variant")"
+      for file in \
+        "themes/kitty/8th-Light-$variant.conf" \
+        "themes/nvim/colors/8th-Light-$variant.lua" \
+        "themes/jetbrains/schemes/8th-Light-$variant.xml" \
+        "themes/jetbrains/themes/8th-Light-$variant.theme.json" \
+        "screenshots/kitty/8th-light-$lower.png" \
+        "screenshots/nvim/8th-light-$lower.png" \
+        "screenshots/jetbrains/8th-light-$lower.png"; do
+        [[ -f "$file" ]] || fail "missing $file"
+      done
+      grep -q "schemes/8th-Light-$variant\"" themes/jetbrains/META-INF/plugin.xml || fail "plugin.xml does not register scheme $variant"
+      grep -q "themes/8th-Light-$variant.theme.json\"" themes/jetbrains/META-INF/plugin.xml || fail "plugin.xml does not register theme $variant"
+    done
+
+    echo "Checking JetBrains references"
+    for file in themes/jetbrains/themes/*.json; do
+      scheme="$(jq -r '.editorScheme' "$file")"
+      [[ -f "themes/jetbrains$scheme" ]] || fail "$file points at missing scheme $scheme"
+      image="$(jq -r '.emptyFrameBackground.image // empty' "$file")"
+      [[ -z "$image" || -f "themes/jetbrains/$image" ]] || fail "$file points at missing image $image"
+    done
+
+    echo "Checking Kitty keys match across variants"
+    kitty_keys() {
+      grep -vE '^[[:space:]]*(#|$)' "$1" | awk '{print $1}' | sort
+    }
+    reference="$(kitty_keys themes/kitty/8th-Light-Black.conf)"
+    for file in themes/kitty/*.conf; do
+      [[ "$(kitty_keys "$file")" == "$reference" ]] || fail "$file defines different keys than 8th-Light-Black.conf"
+    done
+
+    echo "Checking README palette against the Neovim palette"
+    readme_hexes="$(grep -oE '^\| .* \| `#[0-9A-Fa-f]{6}` \|' README.md | grep -oE '#[0-9A-Fa-f]{6}' | tr '[:lower:]' '[:upper:]' | sort -u)"
+    lua_hexes="$(sed -n '/^local palette = {/,/^}/p' themes/nvim/lua/eighth_light/init.lua | grep -oE '#[0-9A-Fa-f]{6}' | tr '[:lower:]' '[:upper:]' | sort -u)"
+    [[ "$readme_hexes" == "$lua_hexes" ]] || fail "README palette and Neovim palette differ: $(diff <(echo "$readme_hexes") <(echo "$lua_hexes") | tr '\n' ' ')"
+
+    if (( failures > 0 )); then
+      echo "$failures check(s) failed." >&2
+      exit 1
+    fi
+    echo "All checks passed."

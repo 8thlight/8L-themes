@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 220" role="img" aria-labelledby="title desc">
+  <title id="title">8th Light Kitty theme palette</title>
+  <desc id="desc">Eight neutral swatches followed by seven accent swatches.</desc>
+  <rect width="840" height="220" fill="#141414"/>
+  <g>
+    <rect x="45" y="40" width="90" height="65" fill="#000000" stroke="#3C3C3C"/>
+    <rect x="140" y="40" width="90" height="65" fill="#141414" stroke="#3C3C3C"/>
+    <rect x="235" y="40" width="90" height="65" fill="#3C3C3C"/>
+    <rect x="330" y="40" width="90" height="65" fill="#808080"/>
+    <rect x="425" y="40" width="90" height="65" fill="#DEDEDE"/>
+    <rect x="520" y="40" width="90" height="65" fill="#EBEBEB"/>
+    <rect x="615" y="40" width="90" height="65" fill="#F4F4F4"/>
+    <rect x="710" y="40" width="90" height="65" fill="#FFFFFF"/>
+  </g>
+  <g>
+    <rect x="42" y="115" width="75" height="65" fill="#F32735"/>
+    <rect x="127" y="115" width="75" height="65" fill="#FF8300"/>
+    <rect x="212" y="115" width="75" height="65" fill="#FFD100"/>
+    <rect x="297" y="115" width="75" height="65" fill="#93D500"/>
+    <rect x="382" y="115" width="75" height="65" fill="#0071CE"/>
+    <rect x="467" y="115" width="75" height="65" fill="#004987"/>
+    <rect x="552" y="115" width="75" height="65" fill="#A81B8D"/>
+    <rect x="637" y="115" width="75" height="65" fill="#5938FF"/>
+    <rect x="722" y="115" width="75" height="65" fill="#0000FF"/>
+  </g>
+</svg>
