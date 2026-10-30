@@ -31,6 +31,13 @@ codex-app-theme variant="Charcoal":
 generate-agent-themes:
     python3 scripts/generate-agent-themes.py
 
+# Regenerate the Claude Code and Codex CLI screenshots from the real programs. Needs Go and logged-in claude and codex.
+agent-screenshots:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd scripts/agent-screenshots
+    GODEBUG=gcshrinkstackoff=1 AGENT_SCREENSHOTS="$PWD/../../screenshots" go test -count=1 ./...
+
 # Symlink every Kitty theme into Kitty's user themes directory.
 link-kitty:
     #!/usr/bin/env bash
@@ -268,6 +275,8 @@ check:
         "extras/codex-app/8th-Light-$variant.codex-theme" \
         "screenshots/kitty/8th-light-$lower.png" \
         "screenshots/nvim/8th-light-$lower.png" \
+        "screenshots/claude/8th-light-$lower.png" \
+        "screenshots/codex/8th-light-$lower.png" \
         "screenshots/jetbrains/8th-light-$lower.png"; do
         [[ -f "$file" ]] || fail "missing $file"
       done

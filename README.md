@@ -6,7 +6,7 @@ Application themes built from the 8th Light brand color palette and the colors u
 
 ## Screenshots
 
-Screenshots were taken with Cousine Nerd Font Mono. The themes do not set a font.
+Screenshots were taken with Cousine Nerd Font Mono. The themes do not set a font. The Claude Code and Codex CLI images are generated; see [Agent screenshots](#agent-screenshots).
 
 <details>
 <summary><strong>JetBrains IDEs</strong></summary>
@@ -35,6 +35,26 @@ Screenshots were taken with Cousine Nerd Font Mono. The themes do not set a font
 | --- | --- | --- | --- |
 | <a href="screenshots/nvim/8th-light-black.png"><img src="screenshots/nvim/8th-light-black.png" alt="8th Light Black in Neovim" width="200"></a><br>Black | <a href="screenshots/nvim/8th-light-charcoal.png"><img src="screenshots/nvim/8th-light-charcoal.png" alt="8th Light Charcoal in Neovim" width="200"></a><br>Charcoal | <a href="screenshots/nvim/8th-light-dark-gray.png"><img src="screenshots/nvim/8th-light-dark-gray.png" alt="8th Light Dark Gray in Neovim" width="200"></a><br>Dark Gray | <a href="screenshots/nvim/8th-light-mid-gray.png"><img src="screenshots/nvim/8th-light-mid-gray.png" alt="8th Light Mid Gray in Neovim" width="200"></a><br>Mid Gray |
 | <a href="screenshots/nvim/8th-light-light-gray.png"><img src="screenshots/nvim/8th-light-light-gray.png" alt="8th Light Light Gray in Neovim" width="200"></a><br>Light Gray | <a href="screenshots/nvim/8th-light-lighter-gray.png"><img src="screenshots/nvim/8th-light-lighter-gray.png" alt="8th Light Lighter Gray in Neovim" width="200"></a><br>Lighter Gray | <a href="screenshots/nvim/8th-light-lightest-gray.png"><img src="screenshots/nvim/8th-light-lightest-gray.png" alt="8th Light Lightest Gray in Neovim" width="200"></a><br>Lightest Gray | <a href="screenshots/nvim/8th-light-white.png"><img src="screenshots/nvim/8th-light-white.png" alt="8th Light White in Neovim" width="200"></a><br>White |
+
+</details>
+
+<details>
+<summary><strong>Claude Code</strong></summary>
+
+|  |  |  |  |
+| --- | --- | --- | --- |
+| <a href="screenshots/claude/8th-light-black.png"><img src="screenshots/claude/8th-light-black.png" alt="8th Light Black in Claude Code" width="200"></a><br>Black | <a href="screenshots/claude/8th-light-charcoal.png"><img src="screenshots/claude/8th-light-charcoal.png" alt="8th Light Charcoal in Claude Code" width="200"></a><br>Charcoal | <a href="screenshots/claude/8th-light-dark-gray.png"><img src="screenshots/claude/8th-light-dark-gray.png" alt="8th Light Dark Gray in Claude Code" width="200"></a><br>Dark Gray | <a href="screenshots/claude/8th-light-mid-gray.png"><img src="screenshots/claude/8th-light-mid-gray.png" alt="8th Light Mid Gray in Claude Code" width="200"></a><br>Mid Gray |
+| <a href="screenshots/claude/8th-light-light-gray.png"><img src="screenshots/claude/8th-light-light-gray.png" alt="8th Light Light Gray in Claude Code" width="200"></a><br>Light Gray | <a href="screenshots/claude/8th-light-lighter-gray.png"><img src="screenshots/claude/8th-light-lighter-gray.png" alt="8th Light Lighter Gray in Claude Code" width="200"></a><br>Lighter Gray | <a href="screenshots/claude/8th-light-lightest-gray.png"><img src="screenshots/claude/8th-light-lightest-gray.png" alt="8th Light Lightest Gray in Claude Code" width="200"></a><br>Lightest Gray | <a href="screenshots/claude/8th-light-white.png"><img src="screenshots/claude/8th-light-white.png" alt="8th Light White in Claude Code" width="200"></a><br>White |
+
+</details>
+
+<details>
+<summary><strong>Codex CLI</strong></summary>
+
+|  |  |  |  |
+| --- | --- | --- | --- |
+| <a href="screenshots/codex/8th-light-black.png"><img src="screenshots/codex/8th-light-black.png" alt="8th Light Black in Codex CLI" width="200"></a><br>Black | <a href="screenshots/codex/8th-light-charcoal.png"><img src="screenshots/codex/8th-light-charcoal.png" alt="8th Light Charcoal in Codex CLI" width="200"></a><br>Charcoal | <a href="screenshots/codex/8th-light-dark-gray.png"><img src="screenshots/codex/8th-light-dark-gray.png" alt="8th Light Dark Gray in Codex CLI" width="200"></a><br>Dark Gray | <a href="screenshots/codex/8th-light-mid-gray.png"><img src="screenshots/codex/8th-light-mid-gray.png" alt="8th Light Mid Gray in Codex CLI" width="200"></a><br>Mid Gray |
+| <a href="screenshots/codex/8th-light-light-gray.png"><img src="screenshots/codex/8th-light-light-gray.png" alt="8th Light Light Gray in Codex CLI" width="200"></a><br>Light Gray | <a href="screenshots/codex/8th-light-lighter-gray.png"><img src="screenshots/codex/8th-light-lighter-gray.png" alt="8th Light Lighter Gray in Codex CLI" width="200"></a><br>Lighter Gray | <a href="screenshots/codex/8th-light-lightest-gray.png"><img src="screenshots/codex/8th-light-lightest-gray.png" alt="8th Light Lightest Gray in Codex CLI" width="200"></a><br>Lightest Gray | <a href="screenshots/codex/8th-light-white.png"><img src="screenshots/codex/8th-light-white.png" alt="8th Light White in Codex CLI" width="200"></a><br>White |
 
 </details>
 
@@ -360,6 +380,23 @@ transparent canvas. It is naturally clipped in narrow panes and revealed in
 wide panes without painting behind ordinary editors, tool windows, or IDE
 chrome. Dark and light themes use white and charcoal lockups respectively.
 
+### Agent screenshots
+
+The Claude Code and Codex CLI images come from the real programs, run in a
+terminal emulator whose colors are read from the matching Kitty theme. Codex
+shows its syntax theme picker with a live preview. Claude shows its main prompt
+and Powerline preset. On macOS, with Go and a logged-in `claude` and `codex`:
+
+```sh
+just agent-screenshots
+```
+
+The recipe runs both programs in `/tmp/8l-demo` and writes
+`screenshots/claude/` and `screenshots/codex/`. The first run accepts Claude's
+trust prompt for that folder, which Claude records in `~/.claude.json`. The
+images show the installed program versions, so review them before committing.
+The Claude Code image also shows a startup tip that changes between runs.
+
 ## Palette
 
 The neutral base is used for the terminal background, foreground, borders, and
@@ -397,7 +434,7 @@ bright magenta. The website's blue-255 is used for bright blue.
 - [`extras/claude-powerline/`](extras/claude-powerline/): Claude Powerline presets.
 - [`extras/codex-cli/`](extras/codex-cli/): TextMate themes for Codex CLI.
 - [`extras/codex-app/`](extras/codex-app/): Codex app import payloads and share strings.
-- [`scripts/`](scripts/): agent theme generation, validation, and safe linking.
+- [`scripts/`](scripts/): agent theme generation, validation, safe linking, and agent screenshots.
 - [`docs/`](docs/) and [`screenshots/`](screenshots/): the palette, logo, and
   install images, and the theme screenshots shown above.
 

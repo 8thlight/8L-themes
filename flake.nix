@@ -18,6 +18,7 @@
       default = pkgs.mkShellNoCC {
         packages = [
           pkgs.just
+          pkgs.go
           pkgs.jq
           pkgs.libxml2
           pkgs.lua5_4
