@@ -2,7 +2,34 @@ default:
     @just --list
 
 # Symlink all available application themes.
-link: link-kitty link-nvim link-jetbrains
+link: link-kitty link-nvim link-jetbrains link-claude link-claude-powerline link-codex-cli
+
+# Install Claude Code interface themes. Select one with /theme.
+link-claude:
+    bash scripts/link-agent-themes.sh link claude
+
+# Install Powerline presets. Use --config to select one in Claude's statusLine command.
+link-claude-powerline:
+    bash scripts/link-agent-themes.sh link claude-powerline
+
+# Install Codex CLI syntax themes. Select one with /theme.
+link-codex-cli:
+    bash scripts/link-agent-themes.sh link codex-cli
+
+# Print a Codex app theme for Settings > Appearance > Import (pipe to pbcopy on macOS).
+codex-app-theme variant="Charcoal":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    variant={{quote(variant)}}
+    case "$variant" in
+      Black|Charcoal|Dark-Gray|Mid-Gray|Light-Gray|Lighter-Gray|Lightest-Gray|White) ;;
+      *) echo "Unknown 8th Light variant: $variant" >&2; exit 1 ;;
+    esac
+    cat "extras/codex-app/8th-Light-$variant.codex-theme"
+
+# Regenerate all agent themes from the Neovim palette and variants.
+generate-agent-themes:
+    python3 scripts/generate-agent-themes.py
 
 # Symlink every Kitty theme into Kitty's user themes directory.
 link-kitty:
@@ -121,7 +148,19 @@ link-jetbrains: _build-jetbrains
     done
 
 # Remove all of this repository's application theme symlinks.
-unlink: unlink-kitty unlink-nvim unlink-jetbrains
+unlink: unlink-kitty unlink-nvim unlink-jetbrains unlink-claude unlink-claude-powerline unlink-codex-cli
+
+# Remove only this checkout's Claude theme links.
+unlink-claude:
+    bash scripts/link-agent-themes.sh unlink claude
+
+# Remove only this checkout's Claude Powerline preset links.
+unlink-claude-powerline:
+    bash scripts/link-agent-themes.sh unlink claude-powerline
+
+# Remove only this checkout's Codex CLI theme links.
+unlink-codex-cli:
+    bash scripts/link-agent-themes.sh unlink codex-cli
 
 # Remove this repository's theme symlinks from Kitty's user themes directory.
 unlink-kitty:
@@ -204,10 +243,10 @@ check:
     variants=(Black Charcoal Dark-Gray Mid-Gray Light-Gray Lighter-Gray Lightest-Gray White)
 
     echo "Checking XML syntax"
-    xmllint --noout extras/jetbrains/META-INF/plugin.xml extras/jetbrains/META-INF/pluginIcon.svg extras/jetbrains/schemes/*.xml docs/*.svg || fail "XML is not well-formed"
+    xmllint --noout --nonet extras/jetbrains/META-INF/plugin.xml extras/jetbrains/META-INF/pluginIcon.svg extras/jetbrains/schemes/*.xml extras/codex-cli/*.tmTheme docs/*.svg || fail "XML is not well-formed"
 
     echo "Checking JSON syntax"
-    for file in extras/jetbrains/themes/*.json; do
+    for file in extras/jetbrains/themes/*.json extras/claude/*.json extras/claude-powerline/*.json extras/codex-app/*.json; do
       jq empty "$file" || fail "$file is not valid JSON"
     done
 
@@ -222,6 +261,11 @@ check:
         "colors/8th-Light-$variant.lua" \
         "extras/jetbrains/schemes/8th-Light-$variant.xml" \
         "extras/jetbrains/themes/8th-Light-$variant.theme.json" \
+        "extras/claude/8th-Light-$variant.json" \
+        "extras/claude-powerline/8th-Light-$variant.json" \
+        "extras/codex-cli/8th-Light-$variant.tmTheme" \
+        "extras/codex-app/8th-Light-$variant.json" \
+        "extras/codex-app/8th-Light-$variant.codex-theme" \
         "screenshots/kitty/8th-light-$lower.png" \
         "screenshots/nvim/8th-light-$lower.png" \
         "screenshots/jetbrains/8th-light-$lower.png"; do
@@ -255,6 +299,10 @@ check:
     readme_hexes="$(grep -oE '^\| .* \| `#[0-9A-Fa-f]{6}` \|' README.md | grep -oE '#[0-9A-Fa-f]{6}' | tr '[:lower:]' '[:upper:]' | sort -u)"
     lua_hexes="$(sed -n '/^local palette = {/,/^}/p' lua/eighth_light/init.lua | grep -oE '#[0-9A-Fa-f]{6}' | tr '[:lower:]' '[:upper:]' | sort -u)"
     [[ "$readme_hexes" == "$lua_hexes" ]] || fail "README palette and Neovim palette differ: $(diff <(echo "$readme_hexes") <(echo "$lua_hexes") | tr '\n' ' ')"
+
+    echo "Checking agent theme generation, formats, contrast, and install helpers"
+    python3 scripts/generate-agent-themes.py --check || fail "agent themes are stale"
+    python3 scripts/check-agent-themes.py || fail "agent theme validation failed"
 
     if (( failures > 0 )); then
       echo "$failures check(s) failed." >&2

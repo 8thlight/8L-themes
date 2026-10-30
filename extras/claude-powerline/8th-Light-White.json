@@ -1,0 +1,87 @@
+{
+  "theme": "custom",
+  "display": {
+    "style": "powerline",
+    "colorCompatibility": "truecolor"
+  },
+  "colors": {
+    "custom": {
+      "directory": {
+        "bg": "#004987",
+        "fg": "#FFFFFF"
+      },
+      "git": {
+        "bg": "#EBEBEB",
+        "fg": "#517500"
+      },
+      "model": {
+        "bg": "#A81B8D",
+        "fg": "#FFFFFF"
+      },
+      "session": {
+        "bg": "#F4F4F4",
+        "fg": "#856D00"
+      },
+      "block": {
+        "bg": "#EBEBEB",
+        "fg": "#006BC4"
+      },
+      "today": {
+        "bg": "#EBEBEB",
+        "fg": "#A35400"
+      },
+      "month": {
+        "bg": "#F4F4F4",
+        "fg": "#856D00"
+      },
+      "tmux": {
+        "bg": "#F4F4F4",
+        "fg": "#141414"
+      },
+      "context": {
+        "bg": "#0071CE",
+        "fg": "#FFFFFF"
+      },
+      "contextWarning": {
+        "bg": "#FFD100",
+        "fg": "#000000"
+      },
+      "contextCritical": {
+        "bg": "#F32735",
+        "fg": "#000000"
+      },
+      "metrics": {
+        "bg": "#5938FF",
+        "fg": "#FFFFFF"
+      },
+      "version": {
+        "bg": "#EBEBEB",
+        "fg": "#141414"
+      },
+      "env": {
+        "bg": "#F4F4F4",
+        "fg": "#141414"
+      },
+      "weekly": {
+        "bg": "#EBEBEB",
+        "fg": "#006BC4"
+      },
+      "agent": {
+        "bg": "#A81B8D",
+        "fg": "#FFFFFF"
+      },
+      "thinking": {
+        "bg": "#F4F4F4",
+        "fg": "#A81B8D"
+      },
+      "cacheTimer": {
+        "bg": "#EBEBEB",
+        "fg": "#517500"
+      },
+      "outputStyle": {
+        "bg": "#F4F4F4",
+        "fg": "#0070CC"
+      }
+    }
+  }
+}

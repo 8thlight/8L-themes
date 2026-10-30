@@ -47,6 +47,10 @@ Each application installs on its own, so use only the ones you need.
 | Kitty | Download one `.conf` file | No |
 | Neovim and Neovide | Add the plugin with lazy.nvim | No |
 | JetBrains IDEs | Download the plugin from the [latest release](https://github.com/8thlight/8L-themes/releases/latest) | No |
+| Claude Code | Download a theme JSON into `~/.claude/themes/` | No |
+| Claude Powerline | Download a preset JSON and select it with `--config` | No |
+| Codex CLI | Download a `.tmTheme` file into `~/.codex/themes/` | No |
+| Codex app | Import a `.codex-theme` share string in Appearance settings | No |
 
 ### Kitty
 
@@ -122,6 +126,105 @@ mkdir -p "$repository/build/jetbrains"
 Select `build/jetbrains/8th-light-themes.jar` in the file picker, then restart
 the IDE and select a theme as above.
 
+### Claude Code
+
+Download a variant into Claude Code's theme directory:
+
+```sh
+theme=8th-Light-Charcoal
+mkdir -p ~/.claude/themes
+curl -fsSL -o ~/.claude/themes/$theme.json \
+  https://raw.githubusercontent.com/8thlight/8L-themes/main/extras/claude/$theme.json
+```
+
+Run `/theme` in Claude Code and choose **8th Light Charcoal**. If this is your
+first custom theme and the `themes` directory did not exist when Claude started,
+restart Claude once. Subsequent edits reload automatically. With a clone, run
+`just link-claude` to install all eight variants.
+
+These are native Claude Code interface themes, including accents, input borders,
+message surfaces, diffs, usage meters, and subagent colors. Select the matching
+Kitty theme for the terminal background; Claude does not set that background.
+Custom themes require a Claude Code version with the custom `/theme` picker
+(validated with 2.1.296). See the [Claude theme documentation](https://code.claude.com/docs/en/terminal-config#create-a-custom-theme).
+
+### Claude Powerline
+
+The status bar is a separate integration for
+[`@owloops/claude-powerline`](https://github.com/Owloops/claude-powerline).
+Download the matching preset:
+
+```sh
+theme=8th-Light-Charcoal
+mkdir -p ~/.claude/powerline/themes
+curl -fsSL -o ~/.claude/powerline/themes/$theme.json \
+  https://raw.githubusercontent.com/8thlight/8L-themes/main/extras/claude-powerline/$theme.json
+```
+
+Merge this entry into `~/.claude/settings.json`, keeping your other settings:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "npx -y @owloops/claude-powerline@latest --style=powerline --theme=custom --config=\"$HOME/.claude/powerline/themes/8th-Light-Charcoal.json\""
+  }
+}
+```
+
+With a clone, `just link-claude-powerline` installs all eight presets. The
+explicit `--config` selects the preset even in projects that have their own
+Powerline configuration. The presets use truecolor, cover all 19 color roles,
+and retain Powerline's default segments and behavior. To keep custom segment or
+budget settings, merge the preset's `theme`, `colors`, and color/style display
+keys into your existing Powerline config and point `--config` at that file.
+Validated with Claude Powerline 1.32.5.
+
+### Codex CLI
+
+Download a TextMate theme into Codex's theme directory:
+
+```sh
+theme=8th-Light-Charcoal
+mkdir -p "${CODEX_HOME:-$HOME/.codex}/themes"
+curl -fsSL -o "${CODEX_HOME:-$HOME/.codex}/themes/$theme.tmTheme" \
+  https://raw.githubusercontent.com/8thlight/8L-themes/main/extras/codex-cli/$theme.tmTheme
+```
+
+Run `/theme` in Codex and select **8th-Light-Charcoal (custom)**. Codex saves the selection
+as `theme = "8th-Light-Charcoal"` in the `[tui]` section of its `config.toml`.
+With a clone, run `just link-codex-cli` to install all eight variants.
+
+These themes color syntax in code blocks and diffs. The surrounding interface
+uses the terminal's colors, so select the matching Kitty theme as well.
+Validated with Codex CLI 0.162.1. See the
+[Codex CLI theme documentation](https://learn.chatgpt.com/docs/cli-customization#syntax-highlighting-and-themes).
+
+### Codex app
+
+Each variant includes a share string in
+[`extras/codex-app/`](extras/codex-app/) with the `.codex-theme` extension.
+Download one and copy its entire contents, starting with `codex-theme-v1:`:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/8thlight/8L-themes/main/extras/codex-app/8th-Light-Charcoal.codex-theme
+```
+
+In **Settings | Appearance**, choose **Import** in the matching dark or light
+theme section and paste the string. Black, Charcoal, and Dark Gray are dark
+themes; the other five variants are light themes. On macOS, from a clone:
+
+```sh
+just codex-app-theme Charcoal | pbcopy
+```
+
+The adjacent `.json` files contain the readable import payload. App themes
+configure the background, text, accent, semantic colors, contrast, and opaque
+windows. The app importer accepts built-in syntax presets only, so these imports
+use the Codex syntax preset; custom CLI `.tmTheme` files cannot be imported into
+the app. Fonts use the app defaults. See the
+[app appearance documentation](https://learn.chatgpt.com/docs/reference/settings#appearance).
+
 ### Install from a clone
 
 Clone the repository and keep it in a stable location. The helper commands
@@ -143,10 +246,12 @@ direnv allow
 just link
 ```
 
-`just link` installs all three integrations and therefore expects all three
-applications to be present. Otherwise, use `just link-kitty`, `just
-link-nvim`, or `just link-jetbrains` individually. Run `just --list` to see all
-available helper commands. The helpers refuse to replace regular files.
+`just link` installs the Kitty, Neovim, JetBrains, Claude Code, Claude Powerline,
+and Codex CLI files. JetBrains must have an existing configuration directory.
+Use the individual `just link-<application>` recipes if you only need some of
+them. The Codex app uses its Appearance importer separately. Run `just --list`
+to see all available helper commands. The helpers refuse to replace regular
+files. Installing presets does not change your active theme or settings.
 
 Without `just`, link the files by hand. For Kitty:
 
@@ -173,6 +278,7 @@ By default, the JetBrains installer detects IDE configuration directories under
 `JETBRAINS_CONFIG_DIRECTORY` to install into one specific configuration
 directory instead. The other helpers honor `KITTY_CONFIG_DIRECTORY`,
 `NVIM_DATA_DIRECTORY`, `XDG_CONFIG_HOME`, and `XDG_DATA_HOME` where applicable.
+The agent helpers honor `CLAUDE_CONFIG_DIR` and `CODEX_HOME`.
 
 ### Update and uninstall
 
@@ -182,12 +288,20 @@ directory instead. The other helpers honor `KITTY_CONFIG_DIRECTORY`,
 | lazy.nvim | `:Lazy update` | Remove the plugin spec |
 | JetBrains release | Install the newer JAR over the old one | Uninstall it under **Settings \| Plugins** |
 | Clone and helpers | `git pull`, then `just link` | `just unlink` |
+| Claude or Codex CLI download | Download the file again | Select another theme, then delete the file |
+| Claude Powerline preset | Download the file again | Change the status command, then delete the preset |
+| Codex app import | Import the updated share string | Select another appearance preset or restore your colors |
 
 Kitty and Neovim installs from a clone update through their symlinks, so
 `git pull` is enough for them. JetBrains needs `just link-jetbrains` again to
 rebuild the plugin, and the IDE needs a restart. Run `just unlink` before
 moving or deleting the checkout. It removes only symlinks that point into this
 checkout.
+
+Before `just unlink`, select another Claude/Codex CLI theme and remove or change
+any Powerline command that points at these presets. The unlink helpers remove
+only links belonging to this checkout; they do not edit your settings or undo a
+Codex app import.
 
 ## Variants
 
@@ -205,6 +319,21 @@ Eight neutral-background variants are available in every application:
 | White | `8th-Light-White` | 8th Light White |
 
 ## Notes
+
+### Agent themes
+
+The four agent integrations use the existing Neovim palette and variant roles
+as their source. To regenerate the checked-in files after changing that palette:
+
+```sh
+just generate-agent-themes
+```
+
+Brand colors are preserved where they provide sufficient text contrast.
+Foreground accents are shaded toward black or white when necessary to reach
+4.5:1 contrast on the relevant background. Claude diffs use tinted backgrounds
+to keep the foreground readable. Mid Gray follows the restrained light syntax
+mapping used by the Neovim variant. No theme chooses a font.
 
 ### Neovim colorscheme
 
@@ -264,6 +393,11 @@ bright magenta. The website's blue-255 is used for bright blue.
 - [`colors/`](colors/) and [`lua/`](lua/): the Neovim plugin.
 - [`extras/kitty/`](extras/kitty/): Kitty themes.
 - [`extras/jetbrains/`](extras/jetbrains/): the JetBrains theme plugin.
+- [`extras/claude/`](extras/claude/): native Claude Code interface themes.
+- [`extras/claude-powerline/`](extras/claude-powerline/): Claude Powerline presets.
+- [`extras/codex-cli/`](extras/codex-cli/): TextMate themes for Codex CLI.
+- [`extras/codex-app/`](extras/codex-app/): Codex app import payloads and share strings.
+- [`scripts/`](scripts/): agent theme generation, validation, and safe linking.
 - [`docs/`](docs/) and [`screenshots/`](screenshots/): the palette, logo, and
   install images, and the theme screenshots shown above.
 
@@ -277,6 +411,9 @@ The check validates XML, JSON, and Lua syntax, confirms every variant exists in
 each application and in the screenshots, verifies the JetBrains theme
 references, compares Kitty keys across variants, and matches the README palette
 against the Neovim palette.
+It also checks that generated agent themes are current, validates their consumer
+formats and text contrast, and exercises installation/uninstallation with user
+files, foreign symlinks, and paths containing spaces.
 
 ### Releasing
 

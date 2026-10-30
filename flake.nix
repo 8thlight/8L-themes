@@ -21,6 +21,7 @@
           pkgs.jq
           pkgs.libxml2
           pkgs.lua5_4
+          pkgs.python3
           pkgs.zip
         ];
       };
