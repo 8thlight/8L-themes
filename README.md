@@ -383,19 +383,16 @@ chrome. Dark and light themes use white and charcoal lockups respectively.
 ### Agent screenshots
 
 The Claude Code and Codex CLI images come from the real programs, run in a
-terminal emulator whose colors are read from the matching Kitty theme. Codex
-shows its syntax theme picker with a live preview. Claude shows its main prompt
-and Powerline preset. On macOS, with Go and a logged-in `claude` and `codex`:
+terminal emulator whose colors are read from the matching Kitty theme. On macOS
+with Go and logged-in `claude` and `codex`, with the themes linked:
 
 ```sh
 just agent-screenshots
 ```
 
-The recipe runs both programs in `/tmp/8l-demo` and writes
-`screenshots/claude/` and `screenshots/codex/`. The first run accepts Claude's
-trust prompt for that folder, which Claude records in `~/.claude.json`. The
-images show the installed program versions, so review them before committing.
-The Claude Code image also shows a startup tip that changes between runs.
+Requirements, how the screens are driven, and known caveats are in
+[`scripts/agent-screenshots/`](scripts/agent-screenshots/README.md). The images
+show the installed program versions, so review them before committing.
 
 ## Palette
 
