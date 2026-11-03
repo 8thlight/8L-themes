@@ -3,7 +3,7 @@
   "base": "light",
   "overrides": {
     "claude": "#00192D",
-    "claudeShimmer": "#121A00",
+    "claudeShimmer": "#0071CE",
     "text": "#000000",
     "inverseText": "#808080",
     "inactive": "#171717",
@@ -18,7 +18,7 @@
     "warningShimmer": "#1C1700",
     "merged": "#160E40",
     "promptBorder": "#00192D",
-    "promptBorderShimmer": "#121A00",
+    "promptBorderShimmer": "#0071CE",
     "planMode": "#2D0726",
     "autoAccept": "#121A00",
     "bashBorder": "#241200",

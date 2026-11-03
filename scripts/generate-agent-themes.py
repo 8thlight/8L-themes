@@ -71,15 +71,20 @@ def syntax(p, v):
 def claude(p, v):
     bg, fg = v["background"], v["foreground"]
     text = lambda key: readable(p[key], bg)
+    base = text("cyan")
+    cyan_shimmer = readable(blend(base, fg, 0.25), bg)
+    if contrast(cyan_shimmer, base) < 1.8:
+        # Too close to the base to read as a sweep, so use the unshaded brand blue.
+        cyan_shimmer = p["cyan"]
     overrides = {
-        "claude": text("cyan"), "claudeShimmer": text("green"),
+        "claude": text("cyan"), "claudeShimmer": cyan_shimmer,
         "text": fg, "inverseText": bg, "inactive": readable(v["muted"], bg),
         "subtle": v["border"], "suggestion": text("cyan"),
         "permission": text("cyan"), "permissionShimmer": text("blue"),
         "remember": text("indigo"), "success": text("green"),
         "error": text("red"), "warning": text("orange"), "warningShimmer": text("yellow"),
         "merged": text("violet"), "promptBorder": text("cyan"),
-        "promptBorderShimmer": text("green"), "planMode": text("indigo"),
+        "promptBorderShimmer": cyan_shimmer, "planMode": text("indigo"),
         "autoAccept": text("green"), "bashBorder": text("orange"), "ide": text("cyan"),
         "fastMode": text("yellow"), "fastModeShimmer": text("orange"),
         "effortUltra": text("violet"), "inactiveShimmer": fg,
