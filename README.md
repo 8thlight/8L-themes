@@ -71,6 +71,7 @@ Each application installs on its own, so use only the ones you need.
 | Claude Powerline | Download a preset JSON and select it with `--config` | No |
 | Codex CLI | Download a `.tmTheme` file into `~/.codex/themes/` | No |
 | Codex app | Import a `.codex-theme` share string in Appearance settings | No |
+| Nix and Home Manager | Import the flake's module and enable it, with a toggle per application | No |
 
 ### Kitty
 
@@ -244,6 +245,47 @@ windows. The app importer accepts built-in syntax presets only, so these imports
 use the Codex syntax preset; custom CLI `.tmTheme` files cannot be imported into
 the app. Fonts use the app defaults. See the
 [app appearance documentation](https://learn.chatgpt.com/docs/reference/settings#appearance).
+
+### Nix and Home Manager
+
+The flake exports a Home Manager module. Add the repository as an input, import
+the module, and enable it:
+
+```nix
+# flake.nix
+inputs.eighth-light-themes.url = "github:8thlight/8L-themes";
+
+# home.nix
+imports = [ inputs.eighth-light-themes.homeManagerModules.default ];
+programs.eighth-light-themes.enable = true;
+```
+
+Every application installs by default. Turn off the ones you do not use:
+
+```nix
+programs.eighth-light-themes = {
+  enable = true;
+  kitty.enable = false;
+  jetbrains.enable = false;
+};
+```
+
+| Option | Installs |
+| --- | --- |
+| `kitty.enable` | `.conf` files in `~/.config/kitty/themes/` |
+| `neovim.enable` | The colorschemes, added to `programs.neovim.plugins` |
+| `claude.enable` | Theme JSONs in `~/.claude/themes/` |
+| `claudePowerline.enable` | Presets in `~/.claude/powerline/themes/` |
+| `codexCli.enable` | `.tmTheme` files in `~/.codex/themes/` |
+| `jetbrains.enable` | The plugin JAR at `~/.local/share/eighth-light-themes/8th-light-themes.jar` |
+
+The module places files only. Select the active theme in each application as
+described above. JetBrains IDEs have no declarative plugin location, so install
+the JAR once with **Install Plugin from Disk**. The Codex app has no file to
+install; import its share string in Appearance settings.
+
+The module links files individually, so it cannot share a directory with
+`just link-claude` and similar commands. Use one or the other.
 
 ### Install from a clone
 

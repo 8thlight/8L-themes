@@ -12,6 +12,12 @@
     ];
     forAllSystems = nixpkgs.lib.genAttrs systems;
   in {
+    homeManagerModules.default = ./nix/home-manager-module.nix;
+
+    packages =
+      forAllSystems (system:
+        import ./nix/packages.nix {pkgs = nixpkgs.legacyPackages.${system};});
+
     devShells = forAllSystems (system: let
       pkgs = nixpkgs.legacyPackages.${system};
     in {
